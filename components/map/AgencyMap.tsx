@@ -93,7 +93,6 @@ export default function AgencyMap({ incidents }: AgencyMapProps) {
             key={incident.id}
             position={incident.location}
             title={`${incident.type} - ${incident.priority}`}
-            icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
           />
         ))}
 

@@ -111,7 +111,6 @@ function GoogleMapView() {
                         <Marker
                             key={i.id}
                             position={i.location}
-                            icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                         />
                     ))}
             </GoogleMap>
