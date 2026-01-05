@@ -108,7 +108,18 @@ function GoogleMapView() {
                 {incidents
                     .filter(i => !userLocation || (Math.abs(i.location.lat - userLocation.lat) > 0.0001 || Math.abs(i.location.lng - userLocation.lng) > 0.0001))
                     .map((i) => (
-                        <Marker key={i.id} position={i.location} />
+                        <Marker
+                            key={i.id}
+                            position={i.location}
+                            icon={{
+                                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                                scale: 6,
+                                fillColor: "#06b6d4", // Cyan-500
+                                fillOpacity: 1,
+                                strokeColor: "white",
+                                strokeWeight: 1,
+                            }}
+                        />
                     ))}
             </GoogleMap>
 

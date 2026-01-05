@@ -93,6 +93,14 @@ export default function AgencyMap({ incidents }: AgencyMapProps) {
             key={incident.id}
             position={incident.location}
             title={`${incident.type} - ${incident.priority}`}
+            icon={{
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 6,
+              fillColor: "#06b6d4", // Cyan-500
+              fillOpacity: 1,
+              strokeColor: "white",
+              strokeWeight: 1,
+            }}
           />
         ))}
 

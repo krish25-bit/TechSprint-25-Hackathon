@@ -40,6 +40,7 @@ interface EmergencyContextType {
         incident: Omit<Incident, "id" | "_id" | "timestamp" | "status">
     ) => Promise<void>;
     resolveIncident: (id: string, status: IncidentStatus) => Promise<void>;
+    clearIncidents: () => void;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -125,9 +126,13 @@ export function EmergencyProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const clearIncidents = () => {
+        setIncidents([]);
+    };
+
     return (
         <EmergencyContext.Provider
-            value={{ incidents, addIncident, resolveIncident }}
+            value={{ incidents, addIncident, resolveIncident, clearIncidents }}
         >
             {children}
         </EmergencyContext.Provider>

@@ -21,7 +21,7 @@ const GoogleMapView = dynamic(
 );
 
 export default function AgencyDashboard() {
-  const { incidents, resolveIncident, addIncident } = useEmergency();
+  const { incidents, resolveIncident, addIncident, clearIncidents } = useEmergency();
   const router = useRouter();
   const [agencyUser, setAgencyUser] = useState<{ name: string; role: string } | null>(null);
 
@@ -77,12 +77,25 @@ export default function AgencyDashboard() {
                 Emergency Dispatch
               </h1>
             </Link>
-            <button
-              onClick={() => alert("Add Alert Clicked")}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              Add Alert
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const type = prompt("Enter Incident Type (e.g. Fire, Flood):");
+                  if (type) alert(`Adding incident: ${type}`);
+                }}
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors"
+                title="Add Manually"
+              >
+                + Add
+              </button>
+              <button
+                onClick={() => clearIncidents()}
+                className="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white text-xs font-medium rounded-lg transition-colors border border-slate-600"
+                title="Clear All Red Marks"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg border border-slate-600">
@@ -92,7 +105,7 @@ export default function AgencyDashboard() {
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
+              className="p-2 hover:bg-slate-600 text-slate-400 hover:text-white rounded-lg transition-colors"
               title="Logout"
             >
               <LogOut size={18} />
@@ -129,7 +142,7 @@ export default function AgencyDashboard() {
             <div
               key={incident.id}
               className={`p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors ${incident.priority === "CRITICAL"
-                ? "border-red-500 bg-red-900/10"
+                ? "border-orange-500 bg-orange-900/10"
                 : ""
                 }`}
             >
@@ -137,7 +150,7 @@ export default function AgencyDashboard() {
               <div className="flex justify-between items-start mb-2">
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-bold ${incident.priority === "CRITICAL"
-                    ? "bg-red-600"
+                    ? "bg-orange-600"
                     : incident.priority === "HIGH"
                       ? "bg-orange-600"
                       : "bg-blue-600"

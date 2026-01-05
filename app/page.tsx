@@ -77,9 +77,9 @@ export default function Home() {
 
           <button
             onClick={handleSOS}
-            className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-full animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.7)] flex items-center gap-2"
+            className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
           >
-            <AlertTriangle size={16} /> SOS
+            <AlertTriangle size={16} /> Report SOS
           </button>
         </div>
       </div>
@@ -109,8 +109,8 @@ export default function Home() {
 
         <div
           className={`bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center gap-2 transition-all w-full max-w-md pointer-events-auto ${isListening
-              ? "border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)]"
-              : ""
+            ? "border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)]"
+            : ""
             }`}
         >
           <div className="text-slate-400 text-sm font-medium mb-2">
@@ -120,8 +120,8 @@ export default function Home() {
           <button
             onClick={isListening ? stopListening : startListening}
             className={`h-16 w-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${isListening
-                ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                : "bg-blue-600 hover:bg-blue-500"
+              ? "bg-red-500 hover:bg-red-600 animate-pulse"
+              : "bg-blue-600 hover:bg-blue-500"
               }`}
           >
             <Mic size={32} className="text-white" />
