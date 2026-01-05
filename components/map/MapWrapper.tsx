@@ -8,7 +8,7 @@ export default function MapWrapper() {
     () =>
       dynamic(() => import("@/components/map/GoogleMapView"), {
         loading: () => (
-          <div className="h-screen w-full flex items-center justify-center bg-gray-900 text-white">
+          <div className="h-full w-full flex items-center justify-center bg-gray-900 text-white">
             Loading Map Data...
           </div>
         ),

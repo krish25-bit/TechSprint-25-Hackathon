@@ -74,7 +74,7 @@ function GoogleMapView() {
     }
 
     return (
-        <div className="relative h-screen w-full">
+        <div className="relative h-full w-full">
             <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={userLocation || defaultCenter}
