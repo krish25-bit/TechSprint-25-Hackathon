@@ -26,9 +26,9 @@ export default function AgencyDashboard() {
   );
 
   return (
-    <div className="flex h-screen bg-slate-900 text-white">
+    <div className="flex flex-col md:flex-row h-screen bg-slate-900 text-white">
       {/* ================= SIDEBAR ================= */}
-      <div className="w-1/3 border-r border-slate-700 flex flex-col">
+      <div className="w-full md:w-1/3 h-[40vh] md:h-full border-r-0 md:border-r border-t md:border-t-0 border-slate-700 flex flex-col order-2 md:order-1">
         {/* Header */}
         <div className="p-4 border-b border-slate-700 bg-slate-800">
           <Link href="/" className="hover:opacity-80 transition-opacity">
@@ -54,22 +54,20 @@ export default function AgencyDashboard() {
           {openIncidents.map((incident) => (
             <div
               key={incident.id}
-              className={`p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors ${
-                incident.priority === "CRITICAL"
+              className={`p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors ${incident.priority === "CRITICAL"
                   ? "border-red-500 bg-red-900/10"
                   : ""
-              }`}
+                }`}
             >
               {/* Priority + Time */}
               <div className="flex justify-between items-start mb-2">
                 <span
-                  className={`px-2 py-0.5 rounded text-xs font-bold ${
-                    incident.priority === "CRITICAL"
+                  className={`px-2 py-0.5 rounded text-xs font-bold ${incident.priority === "CRITICAL"
                       ? "bg-red-600"
                       : incident.priority === "HIGH"
-                      ? "bg-orange-600"
-                      : "bg-blue-600"
-                  }`}
+                        ? "bg-orange-600"
+                        : "bg-blue-600"
+                    }`}
                 >
                   {incident.priority}
                 </span>
@@ -123,7 +121,7 @@ export default function AgencyDashboard() {
       </div>
 
       {/* ================= MAP VIEW ================= */}
-      <div className="flex-1 relative z-0">
+      <div className="flex-1 relative z-0 order-1 md:order-2">
         {/* ✅ NO PROPS NEEDED */}
         <GoogleMapView />
       </div>

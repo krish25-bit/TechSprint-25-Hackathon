@@ -20,7 +20,7 @@ import { AlertTriangle, Crosshair } from "lucide-react";
 
 const containerStyle = {
     width: "100%",
-    height: "100vh",
+    height: "100%",
 };
 
 const defaultCenter = {

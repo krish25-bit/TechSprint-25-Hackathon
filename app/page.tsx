@@ -62,7 +62,7 @@ export default function Home() {
       <div className="absolute top-0 left-0 w-full z-[1000] p-4 bg-gradient-to-b from-black/80 to-transparent flex justify-between items-center pointer-events-none">
         {/* Logo */}
         <div className="pointer-events-auto bg-slate-900/90 backdrop-blur px-4 py-2 rounded-xl border border-slate-700 shadow-xl">
-          <h1 className="font-bold text-xl tracking-wider text-blue-400">
+          <h1 className="font-bold text-lg md:text-xl tracking-wider text-blue-400">
             Disaster<span className="text-white">Voice</span>
           </h1>
         </div>
@@ -108,11 +108,10 @@ export default function Home() {
         )}
 
         <div
-          className={`bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center gap-2 transition-all w-full max-w-md pointer-events-auto ${
-            isListening
+          className={`bg-slate-900/90 backdrop-blur-md p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col items-center gap-2 transition-all w-full max-w-md pointer-events-auto ${isListening
               ? "border-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.5)]"
               : ""
-          }`}
+            }`}
         >
           <div className="text-slate-400 text-sm font-medium mb-2">
             {isListening ? "Listening..." : "Tap to Speak"}
@@ -120,11 +119,10 @@ export default function Home() {
 
           <button
             onClick={isListening ? stopListening : startListening}
-            className={`h-16 w-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${
-              isListening
+            className={`h-16 w-16 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 ${isListening
                 ? "bg-red-500 hover:bg-red-600 animate-pulse"
                 : "bg-blue-600 hover:bg-blue-500"
-            }`}
+              }`}
           >
             <Mic size={32} className="text-white" />
           </button>
