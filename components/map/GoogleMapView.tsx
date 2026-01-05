@@ -212,8 +212,8 @@ function GoogleMapView() {
                 }}
             >
                 {/* USER */}
-                {/* USER LOCATION - Only show if NO incident is at the same location to avoid duplicates */}
-                {userLocation && !incidents.some(i => i.location.lat === userLocation.lat && i.location.lng === userLocation.lng) && (
+                {/* USER LOCATION - ALWAYS SHOW */}
+                {userLocation && (
                     <Marker
                         position={userLocation}
                         icon={{
@@ -227,12 +227,12 @@ function GoogleMapView() {
                     />
                 )}
 
-
-
-                {/* INCIDENTS */}
-                {incidents.map((i) => (
-                    <Marker key={i.id} position={i.location} />
-                ))}
+                {/* INCIDENTS - Hide if overlapping with user location */}
+                {incidents
+                    .filter(i => !userLocation || (Math.abs(i.location.lat - userLocation.lat) > 0.0001 || Math.abs(i.location.lng - userLocation.lng) > 0.0001))
+                    .map((i) => (
+                        <Marker key={i.id} position={i.location} />
+                    ))}
 
                 {/* EMERGENCY PLACES */}
                 {places.map(
@@ -307,8 +307,21 @@ function GoogleMapView() {
 
             {/* ACCURACY WARNING */}
             {locationAccuracy && locationAccuracy > 500 && (
-                <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded">
-                    <AlertTriangle size={16} /> Low GPS accuracy
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-yellow-500 text-white px-4 py-2 rounded flex items-center gap-2 z-[1000]">
+                    <AlertTriangle size={16} /> Low GPS accuracy ({Math.round(locationAccuracy)}m)
+                </div>
+            )}
+
+            {/* ERROR WARNINGS */}
+            {locationStatus === 'denied' && (
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 z-[1000]">
+                    <AlertTriangle size={16} /> Location Access Denied. Please enable GPS.
+                </div>
+            )}
+
+            {locationStatus === 'error' && (
+                <div className="absolute top-20 left-1/2 -translate-x-1/2 bg-offset-orange-500 bg-orange-500 text-white px-4 py-2 rounded flex items-center gap-2 z-[1000]">
+                    <AlertTriangle size={16} /> Location Unavailable. Retrying...
                 </div>
             )}
         </div>

@@ -82,7 +82,16 @@ export function EmergencyProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
             if (e.key === "disaster_incidents" && e.newValue) {
-                setIncidents(JSON.parse(e.newValue));
+                try {
+                    const parsed: Incident[] = JSON.parse(e.newValue);
+                    // Filter out the "Bad Fallback" location (New Delhi)
+                    const cleanData = parsed.filter(i =>
+                        !(Math.abs(i.location.lat - 28.6139) < 0.0001 && Math.abs(i.location.lng - 77.2090) < 0.0001)
+                    );
+                    setIncidents(cleanData);
+                } catch (error) {
+                    console.error("Failed to sync incidents:", error);
+                }
             }
         };
 
