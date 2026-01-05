@@ -111,14 +111,7 @@ function GoogleMapView() {
                         <Marker
                             key={i.id}
                             position={i.location}
-                            icon={{
-                                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                                scale: 6,
-                                fillColor: "#06b6d4", // Cyan-500
-                                fillOpacity: 1,
-                                strokeColor: "white",
-                                strokeWeight: 1,
-                            }}
+                            icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                         />
                     ))}
             </GoogleMap>
