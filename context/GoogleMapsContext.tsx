@@ -19,8 +19,7 @@ interface GoogleMapsContextType {
     loadError: Error | undefined;
     mapInstance: google.maps.Map | null;
     setMapInstance: (map: google.maps.Map | null) => void;
-    directionsResponse: google.maps.DirectionsResult | null;
-    setDirectionsResponse: (r: google.maps.DirectionsResult | null) => void;
+
     userLocation: { lat: number; lng: number } | null;
     locationStatus: LocationStatus;
     locationError: string | null;
@@ -36,7 +35,7 @@ const GoogleMapsContext = createContext<GoogleMapsContextType>(
 
 /* -------------------- LIBRARIES -------------------- */
 
-const libraries: ("places" | "geometry")[] = ["places", "geometry"];
+const libraries: ("places" | "geometry")[] = [];
 
 /* -------------------- PROVIDER -------------------- */
 
@@ -50,8 +49,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
     const [mapInstance, setMapInstance] =
         useState<google.maps.Map | null>(null);
 
-    const [directionsResponse, setDirectionsResponse] =
-        useState<google.maps.DirectionsResult | null>(null);
+
 
     const [userLocation, setUserLocation] =
         useState<{ lat: number; lng: number } | null>(null);
@@ -125,8 +123,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
                 loadError,
                 mapInstance,
                 setMapInstance,
-                directionsResponse,
-                setDirectionsResponse,
+
                 userLocation,
                 locationStatus,
                 locationError,
