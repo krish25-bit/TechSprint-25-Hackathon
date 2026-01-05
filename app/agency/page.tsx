@@ -1,9 +1,11 @@
 "use client";
 
 import { useEmergency } from "@/context/EmergencyContext";
-import { AlertCircle, CheckCircle, Radio } from "lucide-react";
+import { AlertCircle, CheckCircle, Radio, Siren, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 // ✅ IMPORTANT: Load the CORRECT map component
 const GoogleMapView = dynamic(
@@ -19,7 +21,42 @@ const GoogleMapView = dynamic(
 );
 
 export default function AgencyDashboard() {
-  const { incidents, resolveIncident } = useEmergency();
+  const { incidents, resolveIncident, addIncident } = useEmergency();
+  const router = useRouter();
+  const [agencyUser, setAgencyUser] = useState<{ name: string; role: string } | null>(null);
+
+  useEffect(() => {
+    // Load logged-in user
+    const savedUser = localStorage.getItem("agency_user");
+    if (savedUser) {
+      setAgencyUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("agency_token");
+    localStorage.removeItem("agency_user");
+    router.push("/agency/login");
+  };
+
+  const handleSimulateIncident = () => {
+    // Creates a fake incident to demo the system
+    const fakeLocations = [
+      { lat: 28.6200, lng: 77.2100 }, // Near Center
+      { lat: 28.6100, lng: 77.2000 },
+      { lat: 28.6300, lng: 77.2200 },
+    ];
+    const randomLoc = fakeLocations[Math.floor(Math.random() * fakeLocations.length)];
+
+    addIncident({
+      type: "Fire",
+      priority: "CRITICAL",
+      description: "SIMULATION: Fire reported at residential complex. Verify immediately.",
+      location: randomLoc,
+      placeName: "Simulated Location",
+      peopleAffected: Math.floor(Math.random() * 20) + 1,
+    });
+  };
 
   const openIncidents = incidents.filter(
     (incident) => incident.status !== "RESOLVED"
@@ -31,15 +68,42 @@ export default function AgencyDashboard() {
       <div className="w-full md:w-1/3 h-[40vh] md:h-full border-r-0 md:border-r border-t md:border-t-0 border-slate-700 flex flex-col order-2 md:order-1">
         {/* Header */}
         <div className="p-4 border-b border-slate-700 bg-slate-800">
-          <Link href="/" className="hover:opacity-80 transition-opacity">
-            <h1 className="text-xl font-bold flex items-center gap-2 text-red-500">
-              <Radio className="animate-pulse" />
-              Emergency Dispatch
-            </h1>
-          </Link>
-          <p className="text-sm text-slate-400 mt-1">
-            {openIncidents.length} Active Incidents
-          </p>
+          <div className="flex justify-between items-center mb-4">
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <h1 className="text-xl font-bold flex items-center gap-2 text-red-500">
+                <Radio className="animate-pulse" />
+                Emergency Dispatch
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+            <div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Logged in as</p>
+              <p className="font-medium text-white">{agencyUser?.name || "Officer"}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-2 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
+              title="Logout"
+            >
+              <LogOut size={18} />
+            </button>
+          </div>
+
+          <div className="mt-4 flex justify-between items-end">
+            <p className="text-sm text-slate-400">
+              {openIncidents.length} Active Incidents
+            </p>
+            {/* SIMULATION BUTTON */}
+            <button
+              onClick={handleSimulateIncident}
+              className="text-xs bg-yellow-600/20 hover:bg-yellow-600/40 text-yellow-500 border border-yellow-600/50 px-3 py-1.5 rounded flex items-center gap-2 transition-all"
+            >
+              <Siren size={14} />
+              Simulate Call
+            </button>
+          </div>
         </div>
 
         {/* Incident List */}
@@ -55,18 +119,18 @@ export default function AgencyDashboard() {
             <div
               key={incident.id}
               className={`p-4 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-colors ${incident.priority === "CRITICAL"
-                  ? "border-red-500 bg-red-900/10"
-                  : ""
+                ? "border-red-500 bg-red-900/10"
+                : ""
                 }`}
             >
               {/* Priority + Time */}
               <div className="flex justify-between items-start mb-2">
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-bold ${incident.priority === "CRITICAL"
-                      ? "bg-red-600"
-                      : incident.priority === "HIGH"
-                        ? "bg-orange-600"
-                        : "bg-blue-600"
+                    ? "bg-red-600"
+                    : incident.priority === "HIGH"
+                      ? "bg-orange-600"
+                      : "bg-blue-600"
                     }`}
                 >
                   {incident.priority}

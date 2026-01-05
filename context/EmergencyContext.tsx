@@ -22,7 +22,8 @@ export type IncidentPriority = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 export type IncidentStatus = "OPEN" | "RESOLVED" | "DISPATCHED";
 
 export interface Incident {
-    id: string;
+    _id: string; // Mongo ID
+    id: string;  // Kept for compatibility, mapped to _id usually
     type: IncidentType;
     priority: IncidentPriority;
     description: string;
@@ -36,9 +37,9 @@ export interface Incident {
 interface EmergencyContextType {
     incidents: Incident[];
     addIncident: (
-        incident: Omit<Incident, "id" | "timestamp" | "status">
-    ) => void;
-    resolveIncident: (id: string, status: IncidentStatus) => void;
+        incident: Omit<Incident, "id" | "_id" | "timestamp" | "status">
+    ) => Promise<void>;
+    resolveIncident: (id: string, status: IncidentStatus) => Promise<void>;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -52,75 +53,76 @@ const EmergencyContext = createContext<EmergencyContextType | undefined>(
 export function EmergencyProvider({ children }: { children: React.ReactNode }) {
     const [incidents, setIncidents] = useState<Incident[]>([]);
 
-    /* -------- LOAD FROM LOCAL STORAGE -------- */
-    /* -------- LOAD FROM LOCAL STORAGE -------- */
+    // Initial Fetch & Polling
     useEffect(() => {
-        if (typeof window === "undefined") return;
-
-        const saved = localStorage.getItem("disaster_incidents");
-        if (saved) {
+        const fetchIncidents = async () => {
             try {
-                const parsed: Incident[] = JSON.parse(saved);
-                // Filter out the "Bad Fallback" location (New Delhi)
-                const cleanData = parsed.filter(i =>
-                    !(Math.abs(i.location.lat - 28.6139) < 0.0001 && Math.abs(i.location.lng - 77.2090) < 0.0001)
-                );
-                setIncidents(cleanData);
-            } catch (e) {
-                console.error("Failed to parse incidents", e);
-            }
-        }
-    }, []);
-
-    /* -------- SAVE TO LOCAL STORAGE -------- */
-    useEffect(() => {
-        if (typeof window === "undefined") return;
-        localStorage.setItem("disaster_incidents", JSON.stringify(incidents));
-    }, [incidents]);
-
-    /* -------- SYNC BETWEEN TABS -------- */
-    useEffect(() => {
-        const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === "disaster_incidents" && e.newValue) {
-                try {
-                    const parsed: Incident[] = JSON.parse(e.newValue);
-                    // Filter out the "Bad Fallback" location (New Delhi)
-                    const cleanData = parsed.filter(i =>
-                        !(Math.abs(i.location.lat - 28.6139) < 0.0001 && Math.abs(i.location.lng - 77.2090) < 0.0001)
-                    );
-                    setIncidents(cleanData);
-                } catch (error) {
-                    console.error("Failed to sync incidents:", error);
+                const res = await fetch('/api/incidents');
+                if (res.ok) {
+                    const data = await res.json();
+                    // Transform _id to id for frontend compatibility if needed
+                    const mapped = data.map((item: any) => ({
+                        ...item,
+                        id: item._id // Map Mongo _id to id for frontend components
+                    }));
+                    setIncidents(mapped);
                 }
+            } catch (error) {
+                console.error("Failed to fetch incidents:", error);
             }
         };
 
-        window.addEventListener("storage", handleStorageChange);
-        return () =>
-            window.removeEventListener("storage", handleStorageChange);
+        // Fetch immediately
+        fetchIncidents();
+
+        // POLL every 3 seconds for "Real-Time" updates
+        const interval = setInterval(fetchIncidents, 3000);
+
+        return () => clearInterval(interval);
     }, []);
 
     /* -------------------- ACTIONS -------------------- */
 
-    const addIncident = (
-        data: Omit<Incident, "id" | "timestamp" | "status">
+    const addIncident = async (
+        data: Omit<Incident, "id" | "_id" | "timestamp" | "status">
     ) => {
-        const newIncident: Incident = {
-            ...data,
-            id: crypto.randomUUID(),
-            timestamp: new Date().toISOString(),
-            status: "OPEN",
-        };
+        try {
+            const res = await fetch('/api/incidents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...data,
+                    status: 'OPEN',
+                }),
+            });
 
-        setIncidents((prev) => [newIncident, ...prev]);
+            if (res.ok) {
+                const newIncident = await res.json();
+                setIncidents((prev) => [{ ...newIncident, id: newIncident._id }, ...prev]);
+            }
+        } catch (error) {
+            console.error("Failed to add incident:", error);
+        }
     };
 
-    const resolveIncident = (id: string, status: IncidentStatus) => {
-        setIncidents((prev) =>
-            prev.map((inc) =>
-                inc.id === id ? { ...inc, status } : inc
-            )
-        );
+    const resolveIncident = async (id: string, status: IncidentStatus) => {
+        try {
+            // Optimistic Update
+            setIncidents((prev) =>
+                prev.map((inc) =>
+                    inc.id === id ? { ...inc, status } : inc
+                )
+            );
+
+            await fetch(`/api/incidents/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status }),
+            });
+        } catch (error) {
+            console.error("Failed to update status:", error);
+            // Revert could be implemented here
+        }
     };
 
     return (
