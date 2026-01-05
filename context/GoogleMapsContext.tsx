@@ -35,7 +35,7 @@ const GoogleMapsContext = createContext<GoogleMapsContextType>(
 
 /* -------------------- LIBRARIES -------------------- */
 
-const libraries: ("places" | "geometry")[] = [];
+const libraries: ("places" | "geometry")[] = ["places"];
 
 /* -------------------- PROVIDER -------------------- */
 

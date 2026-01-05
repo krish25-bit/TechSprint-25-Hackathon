@@ -1,7 +1,7 @@
 "use client";
 
 import { useEmergency } from "@/context/EmergencyContext";
-import { AlertCircle, CheckCircle, Radio, Siren, LogOut } from "lucide-react";
+import { AlertCircle, CheckCircle, Siren, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -39,6 +39,9 @@ export default function AgencyDashboard() {
     router.push("/agency/login");
   };
 
+
+
+
   const handleSimulateIncident = () => {
     // Creates a fake incident to demo the system
     const fakeLocations = [
@@ -70,11 +73,16 @@ export default function AgencyDashboard() {
         <div className="p-4 border-b border-slate-700 bg-slate-800">
           <div className="flex justify-between items-center mb-4">
             <Link href="/" className="hover:opacity-80 transition-opacity">
-              <h1 className="text-xl font-bold flex items-center gap-2 text-red-500">
-                <Radio className="animate-pulse" />
+              <h1 className="text-xl font-bold flex items-center gap-2 text-white">
                 Emergency Dispatch
               </h1>
             </Link>
+            <button
+              onClick={() => alert("Add Alert Clicked")}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Add Alert
+            </button>
           </div>
 
           <div className="flex justify-between items-center bg-slate-700/50 p-3 rounded-lg border border-slate-600">
@@ -90,6 +98,8 @@ export default function AgencyDashboard() {
               <LogOut size={18} />
             </button>
           </div>
+
+
 
           <div className="mt-4 flex justify-between items-end">
             <p className="text-sm text-slate-400">
