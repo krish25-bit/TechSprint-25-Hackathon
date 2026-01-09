@@ -30,6 +30,8 @@ interface GoogleMapsContextType {
     directionsResponse: google.maps.DirectionsResult | null;
     setDirectionsResponse: (response: google.maps.DirectionsResult | null) => void;
     calculateRoute: (destination: google.maps.LatLngLiteral) => void;
+    isDemoMode: boolean;
+    toggleDemoMode: (enable: boolean) => void;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -71,27 +73,6 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
 
-    /* -------------------- DIRECTIONS -------------------- */
-    const calculateRoute = useCallback((destination: google.maps.LatLngLiteral) => {
-        if (!userLocation || !mapInstance) return;
-
-        const service = new google.maps.DirectionsService();
-        service.route(
-            {
-                origin: userLocation,
-                destination: destination,
-                travelMode: google.maps.TravelMode.DRIVING,
-            },
-            (result, status) => {
-                if (status === google.maps.DirectionsStatus.OK) {
-                    setDirectionsResponse(result);
-                } else {
-                    console.error("Directions failed:", status);
-                }
-            }
-        );
-    }, [userLocation, mapInstance]);
-
     /* -------------------- LOCATION -------------------- */
 
     const refreshLocation = useCallback(() => {
@@ -130,6 +111,47 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
         );
     }, []);
 
+    /* -------------------- DEMO MODE -------------------- */
+    const [isDemoMode, setIsDemoMode] = useState(false);
+
+    // Demo Location: New Delhi
+    const DEMO_LOCATION = { lat: 28.6139, lng: 77.2090 };
+
+    const toggleDemoMode = useCallback((enable: boolean) => {
+        setIsDemoMode(enable);
+        if (enable) {
+            setUserLocation(DEMO_LOCATION);
+            setLocationStatus("found");
+            setLocationAccuracy(10);
+            // Clear previous results
+            setSearchResults([]);
+            setDirectionsResponse(null);
+        } else {
+            refreshLocation();
+        }
+    }, [refreshLocation]);
+
+    /* -------------------- DIRECTIONS -------------------- */
+    const calculateRoute = useCallback((destination: google.maps.LatLngLiteral) => {
+        if (!userLocation || !mapInstance) return;
+
+        const service = new google.maps.DirectionsService();
+        service.route(
+            {
+                origin: userLocation,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+            },
+            (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    setDirectionsResponse(result);
+                } else {
+                    console.error("Directions failed:", status);
+                }
+            }
+        );
+    }, [userLocation, mapInstance]);
+
     /* -------------------- EFFECTS -------------------- */
 
     // Start location automatically on mount (independent of Maps script)
@@ -163,6 +185,8 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
                 directionsResponse,
                 setDirectionsResponse,
                 calculateRoute,
+                isDemoMode,
+                toggleDemoMode,
             }}
         >
             {children}

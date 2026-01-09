@@ -57,10 +57,16 @@ export default function useVoiceAssistant() {
         window.speechSynthesis.speak(utterance);
     }, []);
 
-    const { mapInstance, isLoaded: isMapsLoaded, userLocation, setSearchResults, setDirectionsResponse } = useGoogleMaps();
+    const { mapInstance, isLoaded: isMapsLoaded, userLocation, setSearchResults, setDirectionsResponse, isDemoMode } = useGoogleMaps();
 
     // AI Command Parser Integration
     const handleCommand = (text: string) => {
+        // 0. DEMO MODE INTERCEPT
+        if (isDemoMode && text.toLowerCase().includes("demo")) {
+            speak("Demo Mode is active. I have simulated a Flood Incident near India Gate. You can ask me to find a hospital or get directions.");
+            return;
+        }
+
         // 1. Analyze Input using AI Agent
         const analysis = analyzeEmergencyInput(text);
 
@@ -109,6 +115,51 @@ export default function useVoiceAssistant() {
                     }
                 }
             );
+            return;
+        }
+
+        // 3a. DEMO MODE: Find Places
+        if (isDemoMode && (text.toLowerCase().includes("hospital") || text.toLowerCase().includes("shelter"))) {
+            const fakePlaces = [
+                {
+                    place_id: "demo_1",
+                    name: "Demo City Hospital (Simulated)",
+                    geometry: { location: { lat: 28.6100, lng: 77.2300 } },
+                    vicinity: "Demo District"
+                },
+                {
+                    place_id: "demo_2",
+                    name: "Emergency Shelter Alpha (Simulated)",
+                    geometry: { location: { lat: 28.6200, lng: 77.2100 } },
+                    vicinity: "Safe Zone"
+                }
+            ] as unknown as google.maps.places.PlaceResult[];
+            setSearchResults(fakePlaces);
+            speak(`Demo Mode: Found ${fakePlaces.length} simulated locations nearby.`);
+            return;
+        }
+
+        // 2a. DEMO MODE: Directions
+        if (isDemoMode && (text.toLowerCase().includes("direction") || text.toLowerCase().includes("navigate"))) {
+            if (!userLocation) {
+                speak("Waiting for demo location...");
+                return;
+            }
+            const fakeHospital = { lat: 28.6100, lng: 77.2300 }; // Fake Hospital Location
+            speak("Demo Mode: Navigating to the nearest Emergency Center (Simulated).");
+
+            const directionsService = new google.maps.DirectionsService();
+            directionsService.route({
+                origin: userLocation,
+                destination: fakeHospital,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    setDirectionsResponse(result);
+                } else {
+                    speak("Demo Navigation failed. Please check map configuration.");
+                }
+            });
             return;
         }
 

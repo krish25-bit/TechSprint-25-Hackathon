@@ -21,7 +21,7 @@ export default function Home() {
   } = useVoiceAssistant();
 
   const { addIncident } = useEmergency();
-  const { userLocation, refreshLocation, locationStatus } = useGoogleMaps();
+  const { userLocation, refreshLocation, locationStatus, isDemoMode, toggleDemoMode, calculateRoute } = useGoogleMaps();
 
   const [textInput, setTextInput] = useState("");
 
@@ -68,6 +68,39 @@ export default function Home() {
         </div>
 
         <div className="pointer-events-auto flex items-center gap-3">
+          {/* DEMO MODE TOGGLE */}
+          <button
+            onClick={() => {
+              const newState = !isDemoMode;
+              toggleDemoMode(newState);
+              if (newState) {
+                // Simulate Incident & Response
+                handleCommand("demo mode started"); // Trigger AI acknowledgement if needed or just alert
+                alert("🧪 Demo Mode ON: Simulating disaster scenario at New Delhi.");
+
+                // Add Fake Incident
+                addIncident({
+                  type: "Flood",
+                  priority: "CRITICAL",
+                  location: { lat: 28.6129, lng: 77.2295 }, // Nearby
+                  description: "SIMULATION: Flash flood reported near India Gate.",
+                  peopleAffected: 42,
+                  placeName: "India Gate Area"
+                });
+
+                // Fake Directions (Auto-trigger)
+                calculateRoute({ lat: 28.6129, lng: 77.2295 });
+              } else {
+                alert("Demo Mode OFF: Returning to real location.");
+              }
+            }}
+            className={`text-xs font-bold px-3 py-2 rounded-lg border transition-colors flex items-center gap-2 ${isDemoMode
+              ? "bg-purple-600 text-white border-purple-400"
+              : "bg-slate-800 text-slate-400 border-slate-600 hover:text-white"}`}
+          >
+            🧪 {isDemoMode ? "Demo ON" : "Demo Mode"}
+          </button>
+
           <Link
             href="/agency"
             className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 backdrop-blur px-3 py-2 rounded-lg border border-slate-600 transition-colors"
