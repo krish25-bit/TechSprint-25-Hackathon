@@ -39,6 +39,7 @@ function GoogleMapView() {
         locationAccuracy,
         searchResults,
         directionsResponse,
+        calculateRoute,
     } = useGoogleMaps();
 
     const { incidents } = useEmergency();
@@ -114,6 +115,8 @@ function GoogleMapView() {
                         <Marker
                             key={i.id}
                             position={i.location}
+                            onClick={() => calculateRoute(i.location)}
+                            title={`Click for directions to ${i.type}`}
                         />
                     ))}
 

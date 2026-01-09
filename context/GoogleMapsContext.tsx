@@ -29,6 +29,7 @@ interface GoogleMapsContextType {
     setSearchResults: (results: google.maps.places.PlaceResult[]) => void;
     directionsResponse: google.maps.DirectionsResult | null;
     setDirectionsResponse: (response: google.maps.DirectionsResult | null) => void;
+    calculateRoute: (destination: google.maps.LatLngLiteral) => void;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -69,6 +70,27 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
 
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
+
+    /* -------------------- DIRECTIONS -------------------- */
+    const calculateRoute = useCallback((destination: google.maps.LatLngLiteral) => {
+        if (!userLocation || !mapInstance) return;
+
+        const service = new google.maps.DirectionsService();
+        service.route(
+            {
+                origin: userLocation,
+                destination: destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+            },
+            (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    setDirectionsResponse(result);
+                } else {
+                    console.error("Directions failed:", status);
+                }
+            }
+        );
+    }, [userLocation, mapInstance]);
 
     /* -------------------- LOCATION -------------------- */
 
@@ -140,6 +162,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
                 setSearchResults,
                 directionsResponse,
                 setDirectionsResponse,
+                calculateRoute,
             }}
         >
             {children}
