@@ -27,6 +27,8 @@ interface GoogleMapsContextType {
     locationAccuracy: number | null;
     searchResults: google.maps.places.PlaceResult[];
     setSearchResults: (results: google.maps.places.PlaceResult[]) => void;
+    directionsResponse: google.maps.DirectionsResult | null;
+    setDirectionsResponse: (response: google.maps.DirectionsResult | null) => void;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -66,6 +68,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
         useState<number | null>(null);
 
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
+    const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
 
     /* -------------------- LOCATION -------------------- */
 
@@ -135,6 +138,8 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
                 locationAccuracy,
                 searchResults,
                 setSearchResults,
+                directionsResponse,
+                setDirectionsResponse,
             }}
         >
             {children}

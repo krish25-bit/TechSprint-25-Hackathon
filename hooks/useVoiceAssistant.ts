@@ -57,15 +57,63 @@ export default function useVoiceAssistant() {
         window.speechSynthesis.speak(utterance);
     }, []);
 
-    const { mapInstance, isLoaded: isMapsLoaded, userLocation, setSearchResults } = useGoogleMaps();
+    const { mapInstance, isLoaded: isMapsLoaded, userLocation, setSearchResults, setDirectionsResponse } = useGoogleMaps();
 
     // AI Command Parser Integration
     const handleCommand = (text: string) => {
         // 1. Analyze Input using AI Agent
         const analysis = analyzeEmergencyInput(text);
 
-        // 2. Logic Branching: Find Shelter / Directions
-        if (text.toLowerCase().includes("shelter") || text.toLowerCase().includes("hospital")) {
+        // 2. Logic Branching: Directions
+        if (text.toLowerCase().includes("direction") || text.toLowerCase().includes("go to") || text.toLowerCase().includes("navigate")) {
+            if (!mapInstance || !userLocation) {
+                speak("I cannot get directions right now. Map or location is not ready.");
+                return;
+            }
+
+            // Simple keyword extraction (naive) - can be improved with AI
+            // e.g. "directions to hospital" -> "hospital"
+            // For now, we search for generic targets or assume nearest shelter if unspecified
+            let query = "shelter";
+            if (text.toLowerCase().includes("hospital")) query = "hospital";
+
+            const placesService = new google.maps.places.PlacesService(mapInstance);
+            placesService.nearbySearch(
+                {
+                    location: userLocation,
+                    radius: 5000,
+                    keyword: query
+                },
+                (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+                        // Get directions to the first result
+                        const destination = results[0].geometry?.location;
+                        if (!destination) return;
+
+                        const directionsService = new google.maps.DirectionsService();
+                        directionsService.route({
+                            origin: userLocation,
+                            destination: destination,
+                            travelMode: google.maps.TravelMode.DRIVING
+                        }, (result, status) => {
+                            if (status === google.maps.DirectionsStatus.OK) {
+                                setDirectionsResponse(result);
+                                speak(`Showing directions to the nearest ${query}: ${results[0].name}`);
+                            } else {
+                                speak("Sorry, I could not calculate the route.");
+                            }
+                        });
+
+                    } else {
+                        speak(`Sorry, I could not find any ${query} nearby to navigate to.`);
+                    }
+                }
+            );
+            return;
+        }
+
+        // 3. Logic Branching: Find Shelter (Search Only)
+        if (text.toLowerCase().includes("shelter") || text.toLowerCase().includes("hospital") || text.toLowerCase().includes("find")) {
             if (!mapInstance || !userLocation) {
                 speak("I cannot search for places right now. Map or location is not ready.");
                 return;

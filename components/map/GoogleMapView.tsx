@@ -12,6 +12,7 @@ import React, {
 import {
     GoogleMap,
     Marker,
+    DirectionsRenderer,
 } from "@react-google-maps/api";
 
 import { useGoogleMaps } from "@/context/GoogleMapsContext";
@@ -37,6 +38,7 @@ function GoogleMapView() {
         locationStatus,
         locationAccuracy,
         searchResults,
+        directionsResponse,
     } = useGoogleMaps();
 
     const { incidents } = useEmergency();
@@ -133,6 +135,17 @@ function GoogleMapView() {
                         />
                     )
                 ))}
+
+                {/* DIRECTIONS */}
+                {directionsResponse && (
+                    <DirectionsRenderer
+                        options={{
+                            directions: directionsResponse,
+                            suppressMarkers: false,
+                            preserveViewport: false
+                        }}
+                    />
+                )}
             </GoogleMap>
 
             {/* INFO PANEL */}
