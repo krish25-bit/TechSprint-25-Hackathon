@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -56,16 +57,38 @@ export default function useVoiceAssistant() {
         window.speechSynthesis.speak(utterance);
     }, []);
 
-    const { mapInstance, isLoaded: isMapsLoaded, userLocation } = useGoogleMaps();
+    const { mapInstance, isLoaded: isMapsLoaded, userLocation, setSearchResults } = useGoogleMaps();
 
     // AI Command Parser Integration
     const handleCommand = (text: string) => {
         // 1. Analyze Input using AI Agent
         const analysis = analyzeEmergencyInput(text);
 
-        // 2. Logic Branching: Find Shelter / Directions - DISABLED (No Places/Directions API)
+        // 2. Logic Branching: Find Shelter / Directions
         if (text.toLowerCase().includes("shelter") || text.toLowerCase().includes("hospital")) {
-            speak("I am sorry, but searching for nearby places is currently disabled.");
+            if (!mapInstance || !userLocation) {
+                speak("I cannot search for places right now. Map or location is not ready.");
+                return;
+            }
+
+            const keyword = text.toLowerCase().includes("hospital") ? "hospital" : "shelter";
+
+            const service = new google.maps.places.PlacesService(mapInstance);
+            service.nearbySearch(
+                {
+                    location: userLocation,
+                    radius: 5000,
+                    keyword: keyword
+                },
+                (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                        setSearchResults(results);
+                        speak(`Found ${results.length} ${keyword}s nearby. check the map.`);
+                    } else {
+                        speak(`Sorry, I could not find any ${keyword}s nearby.`);
+                    }
+                }
+            );
             return;
         }
 

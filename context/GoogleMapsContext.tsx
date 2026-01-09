@@ -25,6 +25,8 @@ interface GoogleMapsContextType {
     locationError: string | null;
     refreshLocation: () => void;
     locationAccuracy: number | null;
+    searchResults: google.maps.places.PlaceResult[];
+    setSearchResults: (results: google.maps.places.PlaceResult[]) => void;
 }
 
 /* -------------------- CONTEXT -------------------- */
@@ -62,6 +64,8 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
 
     const [locationAccuracy, setLocationAccuracy] =
         useState<number | null>(null);
+
+    const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
 
     /* -------------------- LOCATION -------------------- */
 
@@ -129,6 +133,8 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
                 locationError,
                 refreshLocation,
                 locationAccuracy,
+                searchResults,
+                setSearchResults,
             }}
         >
             {children}

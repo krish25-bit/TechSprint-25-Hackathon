@@ -36,6 +36,7 @@ function GoogleMapView() {
         refreshLocation,
         locationStatus,
         locationAccuracy,
+        searchResults,
     } = useGoogleMaps();
 
     const { incidents } = useEmergency();
@@ -113,6 +114,25 @@ function GoogleMapView() {
                             position={i.location}
                         />
                     ))}
+
+                {/* SEARCH RESULTS */}
+                {searchResults.map((place, index) => (
+                    place.geometry?.location && (
+                        <Marker
+                            key={`search-${place.place_id || index}`}
+                            position={place.geometry.location}
+                            icon={{
+                                path: google.maps.SymbolPath.CIRCLE,
+                                scale: 8,
+                                fillColor: "#22c55e",
+                                fillOpacity: 1,
+                                strokeColor: "white",
+                                strokeWeight: 2,
+                            }}
+                            title={place.name}
+                        />
+                    )
+                ))}
             </GoogleMap>
 
             {/* INFO PANEL */}
